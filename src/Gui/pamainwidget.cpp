@@ -2,6 +2,11 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include "Gui/patitlebar.h"
+#include "Gui/paalbumlistwidget.h"
+#include "Gui/papictureviewwidget.h"
 
 #define LAYOUTMARGIN 10
 
@@ -9,26 +14,49 @@ PAMainWidget::PAMainWidget(QWidget *parent) :
     QMainWindow(parent),
     m_canMoveWindow(false),
     m_canStretchWindow(false),
-    m_stretchSide(StretchSide::None)
+    m_stretchSide(StretchSide::None),
+    m_pTitleBar(nullptr),
+    m_pAlbumList(nullptr),
+    m_pPictureView(nullptr)
 {
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    resize(800,600);
-    QWidget *pEmptyWidget = new QWidget(this);
-    this->setCentralWidget(pEmptyWidget);
 
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    //setAttribute(Qt::WA_TranslucentBackground);
+    resize(800,600);
     this->setMouseTracking(true);
-    pEmptyWidget->setMouseTracking(true);
-    //this->setAttribute(Qt::WA_TranslucentBackground);
+    initUi();
 }
 
 PAMainWidget::~PAMainWidget()
 {
 }
 
-void PAMainWidget::paintEvent(QPaintEvent *event)
+void PAMainWidget::initUi()
 {
-    QMainWindow::paintEvent(event);
+    QWidget *w = new QWidget();
+
+    m_pTitleBar = new PATitleBar();
+    m_pPictureView = new PAPictureViewWidget();
+    m_pAlbumList = new PAAlbumListWidget();
+
+    QHBoxLayout *hly = new QHBoxLayout;
+    hly->addWidget(m_pAlbumList);
+    hly->addWidget(m_pPictureView);
+
+    QVBoxLayout *vly = new QVBoxLayout;
+    vly->addWidget(m_pTitleBar);
+    vly->addLayout(hly);
+
+    w->setLayout(vly);
+
+    setCentralWidget(w);
+    this->centralWidget()->setMouseTracking(true);
 }
+
+//void PAMainWidget::paintEvent(QPaintEvent *event)
+//{
+//    QMainWindow::paintEvent(event);
+//}
 
 void PAMainWidget::resizeEvent(QResizeEvent *event)
 {
@@ -42,57 +70,55 @@ void PAMainWidget::closeEvent(QCloseEvent *event)
 
 void PAMainWidget::mousePressEvent(QMouseEvent *event)
 {
-    m_mousePressX = event->x();
-    m_mousePressY = event->y();
-
+    m_mousePos = event->pos();
     if(event->buttons() == Qt::LeftButton)
     {
         //Judge the widget drag area;
-        if(m_mousePressX < this->width()-LAYOUTMARGIN &&
-                m_mousePressX >LAYOUTMARGIN &&
-                m_mousePressY < this->height()-LAYOUTMARGIN &&
-                m_mousePressY > LAYOUTMARGIN)
+        if(m_mousePos.x() < this->width()-LAYOUTMARGIN &&
+                m_mousePos.x() >LAYOUTMARGIN &&
+                m_mousePos.y() < this->height()-LAYOUTMARGIN &&
+                m_mousePos.y() > LAYOUTMARGIN)
         {
             m_canMoveWindow = true;
             QApplication::setOverrideCursor(QCursor(Qt::ClosedHandCursor));
         }
         else
         {
-            //Judge the stretch side
+            //Judge the mouse's stretch side
             m_canStretchWindow = true;
-            if((m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN) &&
-                    (m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0))
+            if((m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN) &&
+                    (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
             {
                 m_stretchSide = StretchSide::TopRight;
             }
-            else if((m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN) &&
-                    (m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN))
+            else if((m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN) &&
+                    (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
             {
                 m_stretchSide = StretchSide::BottomRight;
             }
-            else if((m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0) &&
-                    (m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0))
+            else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0) &&
+                    (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
             {
                 m_stretchSide = StretchSide::TopLeft;
             }
-            else if((m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0) &&
-                    (m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN))
+            else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0) &&
+                    (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
             {
                 m_stretchSide = StretchSide::BottomLeft;
             }
-            else if(m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN)
+            else if(m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN)
             {
                 m_stretchSide = StretchSide::Right;
             }
-            else if(m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0)
+            else if(m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
             {
                 m_stretchSide = StretchSide::Left;
             }
-            else if(m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN)
+            else if(m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN)
             {
                 m_stretchSide = StretchSide::Bottom;
             }
-            else if(m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0)
+            else if(m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0)
             {
                 m_stretchSide = StretchSide::Top;
             }
@@ -113,36 +139,53 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if(!m_canStretchWindow && !m_canMoveWindow)
     {
-        m_mousePressX = event->x();
-        m_mousePressY = event->y();
 
-        if((m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN)
-                && (m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0)){
+        m_mousePos = event->pos();
+        if((m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN)
+                && (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
+        {
             m_stretchSide = StretchSide::TopRight;
-        }else if((m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN)
-                 && (m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN)){
+        }
+        else if((m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN)
+                 && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
+        {
             m_stretchSide = StretchSide::BottomRight;
-        }else if((m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0)
-                 && (m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0)){
+        }
+        else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
+                 && (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
+        {
             m_stretchSide = StretchSide::TopLeft;
-        }else if((m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0)
-                 && (m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN)){
+        }
+        else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
+                 && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
+        {
             m_stretchSide = StretchSide::BottomLeft;
-        }else if(m_mousePressX < this->width() && m_mousePressX > this->width() - LAYOUTMARGIN){
+        }
+        else if(m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN)
+        {
             m_stretchSide = StretchSide::Right;
-        }else if(m_mousePressX < LAYOUTMARGIN && m_mousePressX > 0){
+        }
+        else if(m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
+        {
             m_stretchSide = StretchSide::Left;
-        }else if(m_mousePressY < this->height() && m_mousePressY > this->height() - LAYOUTMARGIN){
+        }
+        else if(m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN)
+        {
             m_stretchSide = StretchSide::Bottom;
-        }else if(m_mousePressY < LAYOUTMARGIN && m_mousePressY > 0){
+        }
+        else if(m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0)
+        {
             m_stretchSide = StretchSide::Top;
-        }else{
+        }else
+        {
             m_stretchSide = StretchSide::None;
         }
     }
 
-    if(!m_canMoveWindow){
-        switch (m_stretchSide) {
+    if(!m_canMoveWindow)
+    {
+        switch (m_stretchSide)
+        {
         case StretchSide::Right:
         case StretchSide::Left:
             this->centralWidget()->setCursor(Qt::SizeHorCursor);
@@ -166,12 +209,14 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
         }
     }
 
-    if(m_canMoveWindow){
-        int dx = event->globalX() - m_mousePressX;
-        int dy = event->globalY() - m_mousePressY;
+    if(m_canMoveWindow)
+    {
+        int dx = event->globalX() - m_mousePos.x();
+        int dy = event->globalY() - m_mousePos.y();
         move (dx, dy);
 
-    }else if(m_canStretchWindow && !isMaximized() && !isFullScreen())
+    }
+    else if(m_canStretchWindow && !isMaximized() && !isFullScreen())
     {
         int newX = x();
         int newY = y();
@@ -187,14 +232,14 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
             newWidth = newWidth < minimumWidth() ? minimumWidth() : newWidth;
             break;
         case StretchSide::Left:
-            newX = event->globalX() - m_mousePressX;
+            newX = event->globalX() - m_mousePos.x();
             newX = newX > 0 ? newX : 0;
             newX = newX > geometry().bottomRight().x() - minimumWidth() ? geometry().bottomRight().x() - minimumWidth() : newX;
             newWidth = geometry().topRight().x() - newX + 1;
             newWidth = newWidth < minimumWidth() ? minimumWidth() : newWidth;
             break;
         case StretchSide::Top:
-            newY = event->globalY() - m_mousePressY;
+            newY = event->globalY() - m_mousePos.y();
             newY = newY < minY ? minY : newY;
             newY = newY > geometry().bottomRight().y() - minimumHeight() ? geometry().bottomRight().y() - minimumHeight() : newY;
             newHeight = geometry().bottomLeft().y() - newY + 1;
@@ -207,11 +252,11 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
 
             break;
         case StretchSide::TopLeft:
-            newX = event->globalX() - m_mousePressX;
+            newX = event->globalX() - m_mousePos.x();
             newX = newX < 0 ? 0: newX;
             newX = newX > geometry().bottomRight().x() - minimumWidth() ? geometry().bottomRight().x()-minimumWidth() : newX;
 
-            newY = event->globalY() - m_mousePressY;
+            newY = event->globalY() - m_mousePos.y();
             newY = newY < minY ? minY : newY;
             newY = newY > geometry().bottomRight().y() - minimumHeight() ? geometry().bottomRight().y() - minimumHeight() : newY;
 
@@ -223,7 +268,7 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
 
             break;
         case StretchSide::BottomLeft:
-            newX = event->globalX() - m_mousePressX;
+            newX = event->globalX() - m_mousePos.x();
             newX = newX < 0 ? 0: newX;
             newX = newX > geometry().bottomRight().x() - minimumWidth() ? geometry().bottomRight().x()-minimumWidth() : newX;
 
@@ -235,7 +280,7 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
 
             break;
         case StretchSide::TopRight:
-            newY = event->globalY() - m_mousePressY;
+            newY = event->globalY() - m_mousePos.y();
             newY = newY > geometry().bottomRight().y() - minimumHeight() ? geometry().bottomRight().y() - minimumHeight() : newY;
             newY = newY < minY ? minY : newY;
 
@@ -285,3 +330,5 @@ bool PAMainWidget::eventFilter(QObject *object, QEvent *event)
 {
     return QObject::eventFilter(object, event);
 }
+
+
