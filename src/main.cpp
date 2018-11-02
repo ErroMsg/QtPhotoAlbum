@@ -1,4 +1,4 @@
-#include "pamainwidget.h"
+#include "Gui/pamainwidget.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
