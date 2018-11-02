@@ -11,15 +11,12 @@
 
 PATitleBar::PATitleBar(QWidget *parent) : QFrame(parent)
 {
+    setObjectName("PATitleBar");
     initUi();
     initLayout();
     setFixedHeight(60);
 
-    //temp color setting
-    QPalette palette(this->palette());
-    palette.setColor(QPalette::Background, Qt::red);
-    this->setPalette(palette);
-
+    this->setStyleSheet("QWidget#PATitleBar{background-color:rgb(80,80,80);border-top-left-radius:8px;border-top-right-radius:8px;}");
 }
 
 PATitleBar::~PATitleBar()

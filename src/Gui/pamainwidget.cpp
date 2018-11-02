@@ -7,7 +7,7 @@
 #include "Gui/patitlebar.h"
 #include "Gui/paalbumlistwidget.h"
 #include "Gui/papictureviewwidget.h"
-
+#include <QPainter>
 #define LAYOUTMARGIN 10
 
 PAMainWidget::PAMainWidget(QWidget *parent) :
@@ -36,27 +36,44 @@ void PAMainWidget::initUi()
     QWidget *w = new QWidget();
 
     m_pTitleBar = new PATitleBar();
+    m_pTitleBar->setMouseTracking(true);
     m_pPictureView = new PAPictureViewWidget();
+    m_pPictureView->setMouseTracking(true);
     m_pAlbumList = new PAAlbumListWidget();
+    m_pAlbumList->setMouseTracking(true);
 
     QHBoxLayout *hly = new QHBoxLayout;
+    hly->setSpacing(0);
+    hly->setMargin(0);
+
     hly->addWidget(m_pAlbumList);
     hly->addWidget(m_pPictureView);
 
     QVBoxLayout *vly = new QVBoxLayout;
+    vly->setSpacing(0);
+    vly->setMargin(0);
     vly->addWidget(m_pTitleBar);
     vly->addLayout(hly);
 
     w->setLayout(vly);
-
+    w->setMouseTracking(true);
     setCentralWidget(w);
-    this->centralWidget()->setMouseTracking(true);
+
 }
 
-//void PAMainWidget::paintEvent(QPaintEvent *event)
-//{
-//    QMainWindow::paintEvent(event);
-//}
+void PAMainWidget::paintEvent(QPaintEvent *event)
+{
+//    QPainter painter(this);
+//    painter.setRenderHint(QPainter::Antialiasing);  // 反锯齿;
+//    painter.setBrush(QBrush(Qt::red));
+//    painter.setPen(Qt::transparent);
+//    QRect rect = this->rect();
+//    rect.setWidth(rect.width() - 1);
+//    rect.setHeight(rect.height() - 1);
+//    painter.drawRoundedRect(rect, 15, 15); //也可用QPainterPath 绘制代替
+//    painter.drawRoundedRect(rect, 15, 15);
+    QMainWindow::paintEvent(event);
+}
 
 void PAMainWidget::resizeEvent(QResizeEvent *event)
 {
@@ -73,10 +90,10 @@ void PAMainWidget::mousePressEvent(QMouseEvent *event)
     m_mousePos = event->pos();
     if(event->buttons() == Qt::LeftButton)
     {
-        //Judge the widget drag area;
+        //Judge the widget drag area(int titlebar);
         if(m_mousePos.x() < this->width()-LAYOUTMARGIN &&
                 m_mousePos.x() >LAYOUTMARGIN &&
-                m_mousePos.y() < this->height()-LAYOUTMARGIN &&
+                m_mousePos.y() < m_pTitleBar->height() &&
                 m_mousePos.y() > LAYOUTMARGIN)
         {
             m_canMoveWindow = true;
@@ -147,17 +164,17 @@ void PAMainWidget::mouseMoveEvent(QMouseEvent *event)
             m_stretchSide = StretchSide::TopRight;
         }
         else if((m_mousePos.x() < this->width() && m_mousePos.x() > this->width() - LAYOUTMARGIN)
-                 && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
+                && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
         {
             m_stretchSide = StretchSide::BottomRight;
         }
         else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
-                 && (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
+                && (m_mousePos.y() < LAYOUTMARGIN && m_mousePos.y() > 0))
         {
             m_stretchSide = StretchSide::TopLeft;
         }
         else if((m_mousePos.x() < LAYOUTMARGIN && m_mousePos.x() > 0)
-                 && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
+                && (m_mousePos.y() < this->height() && m_mousePos.y() > this->height() - LAYOUTMARGIN))
         {
             m_stretchSide = StretchSide::BottomLeft;
         }

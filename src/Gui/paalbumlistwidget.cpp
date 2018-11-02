@@ -4,9 +4,7 @@
 
 PAAlbumListWidget::PAAlbumListWidget(QWidget *parent) : QFrame(parent)
 {
-    //temp color setting
-    QPalette palette(this->palette());
-    palette.setColor(QPalette::Background, Qt::red);
-    this->setPalette(palette);
+    setObjectName("PAAlbumListWidget");
     setFixedWidth(200);
+    this->setStyleSheet("QWidget{background-color:rgb(200,200,200);border-bottom-left-radius :8px;}");
 }
