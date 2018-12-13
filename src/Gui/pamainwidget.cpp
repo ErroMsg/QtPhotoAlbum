@@ -8,6 +8,8 @@
 #include "Gui/paalbumlistwidget.h"
 #include "Gui/papictureviewwidget.h"
 #include <QPainter>
+#include <QDebug>
+#include <QGraphicsDropShadowEffect>
 #define LAYOUTMARGIN 10
 
 PAMainWidget::PAMainWidget(QWidget *parent) :
@@ -21,10 +23,13 @@ PAMainWidget::PAMainWidget(QWidget *parent) :
 {
 
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
-    //setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_TranslucentBackground);
     resize(800,600);
     this->setMouseTracking(true);
     initUi();
+    initFrameShaodowEffect();
+
+
 }
 
 PAMainWidget::~PAMainWidget()
@@ -51,7 +56,7 @@ void PAMainWidget::initUi()
 
     QVBoxLayout *vly = new QVBoxLayout;
     vly->setSpacing(0);
-    vly->setMargin(0);
+    vly->setMargin(5);
     vly->addWidget(m_pTitleBar);
     vly->addLayout(hly);
 
@@ -61,18 +66,13 @@ void PAMainWidget::initUi()
 
 }
 
-void PAMainWidget::paintEvent(QPaintEvent *event)
+void PAMainWidget::initFrameShaodowEffect()
 {
-//    QPainter painter(this);
-//    painter.setRenderHint(QPainter::Antialiasing);  // 反锯齿;
-//    painter.setBrush(QBrush(Qt::red));
-//    painter.setPen(Qt::transparent);
-//    QRect rect = this->rect();
-//    rect.setWidth(rect.width() - 1);
-//    rect.setHeight(rect.height() - 1);
-//    painter.drawRoundedRect(rect, 15, 15); //也可用QPainterPath 绘制代替
-//    painter.drawRoundedRect(rect, 15, 15);
-    QMainWindow::paintEvent(event);
+    QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect(this);
+    shadowEffect->setOffset(0,0);
+    shadowEffect->setColor(Qt::black);
+    shadowEffect->setBlurRadius(10);
+    this->setGraphicsEffect(shadowEffect);
 }
 
 void PAMainWidget::resizeEvent(QResizeEvent *event)
@@ -347,5 +347,3 @@ bool PAMainWidget::eventFilter(QObject *object, QEvent *event)
 {
     return QObject::eventFilter(object, event);
 }
-
-

@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QEvent>
 
+//无边MainWindow
+
 namespace Ui {
 class PAMainWidget;
 }
@@ -34,17 +36,18 @@ public:
 
 private:
     void initUi();
+    void initFrameShaodowEffect();
 
 protected:
-    void paintEvent(QPaintEvent* event) Q_DECL_OVERRIDE;
-    void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
-    void closeEvent(QCloseEvent* event) Q_DECL_OVERRIDE;
-    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void mouseDoubleClickEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void leaveEvent(QEvent*) Q_DECL_OVERRIDE;
-    bool eventFilter(QObject* object, QEvent* event) Q_DECL_OVERRIDE;
+    virtual void resizeEvent(QResizeEvent* event) override;
+    virtual void closeEvent(QCloseEvent* event) override;
+    virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+    virtual void leaveEvent(QEvent*) override;
+    virtual bool eventFilter(QObject* object, QEvent* event) override;
+
 
 private:
     StretchSide m_stretchSide;
